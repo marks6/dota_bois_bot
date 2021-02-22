@@ -25,9 +25,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    command = message.content.split()[0]
+    if message.content == '!wins':  # no params
+        await message.channel.send(leaderboard.create_leaderboard(None))
 
-    if command == '!wins':
+    elif message.content.split()[0] == '!wins':  # days provided
         days = message.content.split()[1]
 
         await message.channel.send(leaderboard.create_leaderboard(days))
