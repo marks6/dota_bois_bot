@@ -37,6 +37,10 @@ async def on_message(message):
     if 'chen' in str.lower(message.content):  # no params
         await message.channel.send(random.choice(chen_resps))
 
+    if 'eewrd' in str.lower(message.content) or 'ewerd' in str.lower(message.content) or 'weerd' in str.lower(message.content):
+        for line in meteor:
+            await message.channel.send(line)
+
 
 chen_resps = [
     "All are healed.",
@@ -49,6 +53,14 @@ chen_resps = [
     'The recusant shall pay!',
     'Your judgment comes.',
     "Can't escape your sins."
+]
+
+meteor = [
+    ".  0",
+    ".   0",
+    ".    0",
+    ".     0",
+    ".      000000000"
 ]
 
 client.run(TOKEN)
