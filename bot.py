@@ -16,12 +16,10 @@ hero_cache.load()
 
 @client.event
 async def on_ready():
-    guild = discord.utils.get(client.guilds, name="test server")
+
     print(
-        f'{client.user} is connected to the following guild:\n'
-        f'{guild.name}(id: {guild.id})'
+        f'{client.user} is connected.\n'
     )
-    print(guild.members)
 
 
 @client.event
@@ -34,8 +32,23 @@ async def on_message(message):
 
     elif message.content.split()[0] == '!wins':  # days provided
         days = message.content.split()[1]
-
         await message.channel.send(leaderboard.create_leaderboard(days))
 
+    if 'chen' in str.lower(message.content):  # no params
+        await message.channel.send(random.choice(chen_resps))
+
+
+chen_resps = [
+    "All are healed.",
+    'So begins the persecution.',
+    'For Obelis, the one God.',
+    'The Inquisitor has arrived.',
+    'Knight of the faith.',
+    'God willing.',
+    'Say your prayers.',
+    'The recusant shall pay!',
+    'Your judgment comes.',
+    "Can't escape your sins."
+]
 
 client.run(TOKEN)

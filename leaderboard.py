@@ -4,6 +4,8 @@ import random
 import requests
 import player_provider
 import hero_cache
+from tabulate import tabulate
+
 
 # response = requests.get(url="https://api.opendota.com/api/players/117777491/matches", params={'date': 20, 'win': '1'})
 # take second element for sort
@@ -36,10 +38,10 @@ def create_leaderboard(days):
 
     name_wins_pairs.sort(key=take_second, reverse=True)
 
-    formatted = ""
+    formatted = tabulate(name_wins_pairs, headers=['Name', 'Wins'])
 
-    for tuple in name_wins_pairs:
-        formatted += tuple[0] + "         " + str(tuple[1]) + '\n'
+    # for tuple in name_wins_pairs:
+    #     formatted += tuple[0] + "         " + str(tuple[1]) + '\n'
 
     return formatted  # todo actually format this
 
