@@ -3,7 +3,7 @@ import os
 import random
 import requests
 import player_provider
-
+import hero_cache
 
 # response = requests.get(url="https://api.opendota.com/api/players/117777491/matches", params={'date': 20, 'win': '1'})
 # take second element for sort
@@ -25,14 +25,14 @@ def create_leaderboard(days):
     if days is not None:
         params = {'date': days, 'win': '1'}
 
-    for player in player_provider._players:
-        response = requests.get(url=f"https://api.opendota.com/api/players/{player[0]}/matches",
+    for player_id in player_provider.get_all():
+        response = requests.get(url=f"https://api.opendota.com/api/players/{player_id}/matches",
                                 params=params)
 
         wins_arr = json.loads(response.content)
         if len(wins_arr) == 0:
             continue
-        name_wins_pairs.append([player[1][0], len(wins_arr)])
+        name_wins_pairs.append([player_provider.spoken_name(player_id), len(wins_arr)]) 
 
     name_wins_pairs.sort(key=take_second, reverse=True)
 
@@ -45,4 +45,6 @@ def create_leaderboard(days):
 
 
 if __name__ == "__main__":
-    print(create_leaderboard(None))
+    player_provider.load()
+    hero_cache.load()
+    print(create_leaderboard(2))

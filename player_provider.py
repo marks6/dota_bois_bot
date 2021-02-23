@@ -34,12 +34,16 @@ def lookup(name):
     name = name.strip().lower()
     return _nickname_lookup[name]
 
+def get_all():
+    return [a for a,b in _players ]
+
 def spoken_name(id):
     return _spoken_nickname[id]
  
 
 if __name__ == "__main__":
     load()
-    id = lookup("jaKub")
+    id = 164675486
     name = spoken_name(id)
     print(f"{id}, {name}")
+    print(get_all())

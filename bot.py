@@ -3,12 +3,16 @@ import os
 import random
 import requests
 import leaderboard
+import hero_cache
+import player_provider
 
 import discord
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
+player_provider.load()
+hero_cache.load()
 
 @client.event
 async def on_ready():
