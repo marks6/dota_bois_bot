@@ -15,7 +15,3 @@ def get_apod():
     resp = (resp.json())
     print(resp)
     return {'title': resp['title'], 'url': resp['url'], 'explanation': resp['explanation']}
-
-
-if __name__ == '__main__':
-    print(get_apod())
