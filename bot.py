@@ -5,6 +5,7 @@ import requests
 import leaderboard
 import hero_cache
 import player_provider
+import nasa_apod
 
 import discord
 
@@ -40,6 +41,13 @@ async def on_message(message):
     if 'eewrd' in str.lower(message.content) or 'ewerd' in str.lower(message.content) or 'weerd' in str.lower(message.content):
         for line in meteor:
             await message.channel.send(line)
+
+    if message.content == '!apod':  # no params
+        apod = nasa_apod.get_apod()
+
+        await message.channel.send(apod['title'])
+        await message.channel.send(apod['url'])
+        await message.channel.send(apod['explanation'])
 
 
 chen_resps = [

@@ -134,3 +134,4 @@ dmypy.json
 .idea/modules.xml
 
 .vscode/*
+.idea/workspace.xml
