@@ -1,11 +1,13 @@
 import json
 import os
+import re
 import random
 import requests
 import leaderboard
 import hero_cache
 import player_provider
 import nasa_apod
+import meta_heros
 
 import discord
 
@@ -48,6 +50,18 @@ async def on_message(message):
         await message.channel.send(apod['title'])
         await message.channel.send(apod['url'])
         await message.channel.send(apod['explanation'])
+
+    if message.content.startswith("!meta"):
+        args = message.content.split()
+        if len(args) >= 2 and re.match("-{0,1}[0-9]+",args[1].strip()):
+            metaCount = max(-20,min(20,int(args[1]))) # cap between -20 and 20
+        else:
+            metaCount = 5
+        print(meta_heros.get_meta(metaCount))
+        await message.channel.send(meta_heros.get_meta(metaCount))
+
+        
+
 
 
 chen_resps = [
