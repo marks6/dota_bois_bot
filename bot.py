@@ -8,11 +8,18 @@ import hero_cache
 import player_provider
 import nasa_apod
 import meta_heros
+import logging
 
 import discord
+from dotenv import load_dotenv
 
+logging.basicConfig(level=logging.INFO)
+
+load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
 
 player_provider.load()
 hero_cache.load()
@@ -27,29 +34,38 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    print(f'Message from {message.author}: {message.content}')
+    print(message.channel.name)
+    print(message.content)
     if message.author == client.user:
         return
 
-    if message.content == '!wins':  # no params
-        await message.channel.send(leaderboard.create_leaderboard(None))
+    parts = message.content.split()
 
-    elif message.content.split()[0] == '!wins':  # days provided
-        days = message.content.split()[1]
-        await message.channel.send(leaderboard.create_leaderboard(days))
+    if parts and parts[0] == '!wins':
+        if len(parts) > 1:
+            days = parts[1]
+            await message.channel.send(leaderboard.create_leaderboard(days))
+        else:
+            await message.channel.send(leaderboard.create_leaderboard(7))
 
     if 'chen' in str.lower(message.content):  # no params
         await message.channel.send(random.choice(chen_resps))
-
     if 'eewrd' in str.lower(message.content) or 'ewerd' in str.lower(message.content) or 'weerd' in str.lower(message.content):
         for line in meteor:
             await message.channel.send(line)
 
-    if message.content == '!apod':  # no params
+    if message.content == '!apod':
         apod = nasa_apod.get_apod()
 
-        await message.channel.send(apod['title'])
-        await message.channel.send(apod['url'])
-        await message.channel.send(apod['explanation'])
+        embed = discord.Embed(
+            title=apod['title'],
+            description=apod['explanation'] + ' ' + apod['url'],
+            color=discord.Color.blue()
+        )
+        embed.set_image(url=apod['url'])
+
+        await message.channel.send(embed=embed)
 
     if message.content.startswith("!meta"):
         args = message.content.split()
