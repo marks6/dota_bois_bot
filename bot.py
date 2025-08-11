@@ -4,11 +4,13 @@ import re
 import random
 import requests
 import leaderboard
+import losses_leaderboard
 import hero_cache
 import player_provider
 import nasa_apod
 import meta_heros
 import logging
+import full_match_view
 
 import discord
 from dotenv import load_dotenv
@@ -41,6 +43,13 @@ async def on_message(message):
         return
 
     parts = message.content.split()
+
+    if parts and parts[0] == '!losses':
+        if len(parts) > 1:
+            days = parts[1]
+            await message.channel.send(losses_leaderboard.create_leaderboard(days))
+        else:
+            await message.channel.send(losses_leaderboard.create_leaderboard(7))
 
     if parts and parts[0] == '!wins':
         if len(parts) > 1:
@@ -76,8 +85,22 @@ async def on_message(message):
         print(meta_heros.get_meta(metaCount))
         await message.channel.send(meta_heros.get_meta(metaCount))
 
-        
-
+    if message.content.startswith('!lastmatch'):
+        parts = message.content.split()
+        if len(parts) == 2 and parts[1].isalpha():
+            name = parts[1]
+            account_id = player_provider.find_by_name(name)            
+            if account_id:
+                await message.channel.send(f"Searching for last match of player `{name}`...")
+                response = full_match_view.create_match_embed(str(account_id))
+                if isinstance(response, discord.Embed):
+                    await message.channel.send(embed=response)
+                else:
+                    await message.channel.send(response)
+            else:
+                await message.channel.send(f"Nobody named '{name}'.")
+        else:
+            await message.channel.send("Usage: `!lastmatch <name>`")
 
 
 chen_resps = [

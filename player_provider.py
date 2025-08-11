@@ -26,6 +26,16 @@ def load():
         for custom_nickname in custom_nicknames:
             _nickname_lookup[custom_nickname.lower()] = id
 
+def find_by_name(target_name):
+    lower_target_name = target_name.lower()
+
+    for player_id, names_list in _players:
+        for name in names_list:
+            if name.lower() == lower_target_name:
+                return player_id
+
+    return None
+
 def printout():
     print(_nickname_lookup)
     print(_spoken_nickname)
