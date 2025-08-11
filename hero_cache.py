@@ -11,7 +11,7 @@ def load():
     assert resp.status_code == 200
 
     json_heroes = resp.json()
-    hero_name_cache = {x["id"] : x["localized_name"] for x in json_heroes}
+    hero_name_cache = {hero["id"] : hero["localized_name"] for hero in json_heroes}
 
 def name_for_hero(id):
     return hero_name_cache[id]
