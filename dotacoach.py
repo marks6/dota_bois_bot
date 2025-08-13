@@ -52,9 +52,7 @@ def analyze_dota_match(match_data: dict, account_id: str, player_name: str) -> s
         if not player_stats:
             return "Could not find that player in the match data."
 
-        radiant_win = match_data.get('radiant_win')
-        is_radiant = player_stats.get('isRadiant')
-        result_string = "Win" if (radiant_win == is_radiant) else "Loss"
+        result_string = "Win" if (player_stats.get('win') == 1) else "Loss"
 
         prompt = f"""
         You are a slightly rude but helpful Dota 2 coach. A player named "{player_name}" just finished a match.
