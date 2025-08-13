@@ -78,27 +78,3 @@ def analyze_dota_match(match_data: dict, account_id: str, player_name: str) -> s
     except Exception as e:
         print(f"An error occurred with the Gemini API: {e}")
         return "Sorry, I had a problem analyzing the match."
-
-if __name__ == "__main__":
-    print("Loading hero cache...")
-    if not hero_cache.hero_name_cache:
-        hero_cache.load()
-    print("Hero cache loaded.")
-
-    test_account_id = "72138164"  # Jakub's ID
-    test_player_name = "Jakub"   # The corresponding name to analyze
-
-    print(f"\n--- Testing with player: {test_player_name} (ID: {test_account_id}) ---")
-    print("Fetching latest match data from OpenDota...")
-    match_data = get_match_data(test_account_id)
-
-    if isinstance(match_data, dict):
-        print("Match data fetched successfully. Now analyzing with Gemini...")
-
-        analysis = analyze_dota_match(match_data, test_account_id, test_player_name)
-
-        print("\n--- GEMINI ANALYSIS ---")
-        print(analysis)
-    else:
-        print("\n--- FAILED TO FETCH DATA ---")
-        print(match_data) # This will be the error string returned from the function
