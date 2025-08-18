@@ -38,8 +38,3 @@ def name_for_item(item_id: int) -> str | None:
         return None
     return item_info_cache.get(item_id)
 
-if __name__ == '__main__':
-    # Example for testing this file directly
-    load()
-    print(f"Item ID 1 is: {name_for_item(1)}")   # Should be Blink Dagger
-    print(f"Item ID 116 is: {name_for_item(116)}") # Should be Shadow Blade
