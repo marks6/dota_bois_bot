@@ -2,6 +2,8 @@ import json
 import os
 import re
 import random
+
+import compuglobal
 import requests
 import leaderboard
 import losses_leaderboard
@@ -14,6 +16,8 @@ import logging
 import full_match_view
 import cocktails
 import dotacoach
+import cartoons
+import asyncio
 
 import discord
 from dotenv import load_dotenv
@@ -178,6 +182,25 @@ async def on_message(message):
         except Exception as e:
             print(f"Error during counter-pick analysis: {e}")
             await message.channel.send("Sorry, an unexpected error occurred while getting advice.")
+
+    if message.content.lower().startswith('!simpsons') or message.content.lower().startswith('!futurama'):
+        try:
+            parts = message.content.split(' ', 1)
+            if len(parts) < 2:
+                await message.channel.send("Usage: `!simpsons <query>` or `!futurama <query>`")
+                return
+            search_term = parts[1]
+            if message.content.lower().startswith('!simpsons'):
+                gif = cartoons.get_gif(search_term)
+            else:
+                gif = cartoons.get_gif(search_term, 'futurama')
+            await message.channel.send(gif)
+
+        except compuglobal.errors.NoSearchResultsFound:
+            await message.channel.send("Couldn't find a gif for that query.")
+        except Exception:
+            await message.channel.send("Something went wrong.")
+
 
 chen_resps = [
     "All are healed.",
