@@ -46,18 +46,6 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    tiktok_match = re.search(r"(https?://\S*tiktok\.com\S+)", message.content)
-
-    if tiktok_match:
-        url_to_process = tiktok_match.group(0)
-
-        async with message.channel.typing(): 
-            result = get_tiktok_video_data(url_to_process)
-            if isinstance(result, bytes):
-                await message.reply(file=discord.File(io.BytesIO(result), 'tiktok_video.mp4'), mention_author=False)
-            else:
-                await message.reply(result, mention_author=False)
-
     parts = message.content.split()
 
     if parts and parts[0] == '!losses':
