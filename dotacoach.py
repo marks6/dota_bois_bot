@@ -3,6 +3,7 @@ import requests
 import vertexai
 from vertexai.generative_models import GenerativeModel
 import hero_cache
+import item_cache
 import os
 from dotenv import load_dotenv
 
@@ -53,15 +54,27 @@ def analyze_dota_match(match_data: dict, account_id: str, player_name: str) -> s
             return "Could not find that player in the match data."
 
         result_string = "Win" if (player_stats.get('win') == 1) else "Loss"
+        
+        item_keys = [f"item_{i}" for i in range(6)] + [f"backpack_{i}" for i in range(3)] + ["item_neutral"]
+        item_names = []
+        for key in item_keys:
+            item_id = player_stats.get(key, 0)
+            if item_id != 0:
+                item_name = item_cache.name_for_item(item_id)
+                if item_name:
+                    item_names.append(item_name)
+
+        final_items_string = ", ".join(item_names) if item_names else "None"
 
         prompt = f"""
         You are a slightly rude but helpful Dota 2 coach. A player named "{player_name}" just finished a match.
-        Analyze their performance based on the following data and (if they lost) provide a short, slightly insulting analysis with 2-3 specific tips for improvement and (if they won) provide a positive dissection of the game with 2-3 things that went well/tips to think about. If the player won, don't spew positive keywords, keep it analytical.
+        Analyze their performance based on the following data and (if they lost) provide a short, slightly insulting analysis with 2-3 specific tips for improvement and (if they won) provide a positive dissection of the game with 2-3 things that went well/tips to think about. If the player won, don't spew positive keywords, keep it analytical. Keep in mind the items the player has, try to find better items if there are any for the role the hero is playing.
         Keep the tone positive. Do not just list the stats; provide insights.
 
         Player Data:
         - Match Result: {result_string}
         - Hero: {hero_cache.name_for_hero(player_stats.get('hero_id'))}
+        - Final Items: {final_items_string}
         - Kills: {player_stats.get('kills')}
         - Deaths: {player_stats.get('deaths')}
         - Assists: {player_stats.get('assists')}
@@ -78,3 +91,38 @@ def analyze_dota_match(match_data: dict, account_id: str, player_name: str) -> s
     except Exception as e:
         print(f"An error occurred with the Gemini API: {e}")
         return "Sorry, I had a problem analyzing the match."
+
+def get_counter_pick_advice(role: str, enemy_heroes: list[str]) -> str:
+    """
+    Uses Gemini to generate counter-pick advice for a given role and enemy lineup.
+    """
+    try:
+        if not GCP_PROJECT_ID or not GCP_REGION:
+            print("ERROR: GCP_PROJECT_ID and GCP_REGION environment variables are not set.")
+            return "Sorry, the AI analyzer is not configured correctly."
+
+        vertexai.init(project=GCP_PROJECT_ID, location=GCP_REGION)
+        model = GenerativeModel("gemini-2.0-flash-001")
+
+        enemy_heroes_string = ", ".join(enemy_heroes)
+
+        prompt = f"""
+        You are an expert Dota 2 analyst providing advice for a player in the drafting phase.
+        Your task is to provide hero and item counter-pick suggestions for a specific role against a given lineup of enemy heroes.
+
+        **Player's Role:** {role}
+        **Known Enemy Heroes:** {enemy_heroes_string}
+
+        Please provide the following:
+        1.  **Hero Suggestions (5):** Recommend heroes that are strong against this specific enemy lineup and are suitable for the player's role. For each hero, provide a brief (1-2 sentence) explanation of *why* it is a good counter.
+        2.  **Item Suggestions (2-3):** Recommend key items that the player should plan to build on their hero during the game to counter the enemy lineup. For each item, explain *why* it is effective.
+
+        Structure your response with clear headings. Do not include a greeting or sign-off.
+        """
+
+        response = model.generate_content(prompt)
+        return response.text
+
+    except Exception as e:
+        print(f"An error occurred with the Gemini API: {e}")
+        return "Sorry, I had a problem generating the counter-pick advice."
