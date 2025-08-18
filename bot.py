@@ -6,6 +6,7 @@ import requests
 import leaderboard
 import losses_leaderboard
 import hero_cache
+import item_cache
 import player_provider
 import nasa_apod
 import meta_heros
@@ -27,6 +28,7 @@ client = discord.Client(intents=intents)
 
 player_provider.load()
 hero_cache.load()
+item_cache.load()
 
 @client.event
 async def on_ready():
@@ -43,6 +45,18 @@ async def on_message(message):
     print(message.content)
     if message.author == client.user:
         return
+
+    tiktok_match = re.search(r"(https?://\S*tiktok\.com\S+)", message.content)
+
+    if tiktok_match:
+        url_to_process = tiktok_match.group(0)
+
+        async with message.channel.typing(): 
+            result = get_tiktok_video_data(url_to_process)
+            if isinstance(result, bytes):
+                await message.reply(file=discord.File(io.BytesIO(result), 'tiktok_video.mp4'), mention_author=False)
+            else:
+                await message.reply(result, mention_author=False)
 
     parts = message.content.split()
 
@@ -148,6 +162,34 @@ async def on_message(message):
             await message.channel.send(analysis_text)
         else:
             await message.channel.send("Usage: `!analyze <name>`")
+
+    if message.content.lower().startswith('!counter'):
+        parts = message.content.split()
+
+        if len(parts) < 3:
+            await message.channel.send("Usage: `!counter <role> <enemy_hero_1> <enemy_hero_2> ...`\nExample: `!counter mid Pudge Sniper Zeus`")
+            return
+
+        role = parts[1]
+        enemy_heroes = parts[2:]
+
+        await message.channel.send(f"🤖 Analyzing counters for a **{role}** player against **{', '.join(enemy_heroes)}**. Please wait...")
+
+        try:
+            advice_text = dotacoach.get_counter_pick_advice(role, enemy_heroes)
+
+            embed = discord.Embed(
+                title=f"Counter-Pick Advice for a {role.title()} Player",
+                description=advice_text,
+                color=discord.Color.blue()
+            )
+            embed.set_footer(text=f"Against: {', '.join(enemy_heroes)}")
+
+            await message.channel.send(embed=embed)
+
+        except Exception as e:
+            print(f"Error during counter-pick analysis: {e}")
+            await message.channel.send("Sorry, an unexpected error occurred while getting advice.")
 
 chen_resps = [
     "All are healed.",
