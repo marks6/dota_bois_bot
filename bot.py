@@ -191,9 +191,9 @@ async def on_message(message):
                 return
             search_term = parts[1]
             if message.content.lower().startswith('!simpsons'):
-                gif = cartoons.get_gif(search_term)
+                gif = await cartoons.get_gif(search_term)
             else:
-                gif = cartoons.get_gif(search_term, 'futurama')
+                gif = await cartoons.get_gif(search_term, 'futurama')
             await message.channel.send(gif)
 
         except compuglobal.errors.NoSearchResultsFound:
